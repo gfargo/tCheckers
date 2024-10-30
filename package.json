@@ -1,7 +1,8 @@
 {
   "name": "tcheckers",
-  "description": "Terminal checkers game",
   "version": "0.1.0",
+  "description": "Terminal checkers game",
+  "author": "gfargo <ghfargo@gmail.com>",
   "license": "MIT",
   "bin": "dist/cli.js",
   "type": "module",
