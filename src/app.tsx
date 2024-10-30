@@ -107,58 +107,16 @@ export default function App({ isMultiplayer }: { isMultiplayer?: boolean }) {
     return null
   }
 
-  // const validateSourceInput = (input: string): ErrorMessage | null => {
-  //   const position = notationToPosition(input)
-  //   if (!position) {
-  //     return ERROR_MESSAGES.INVALID_FORMAT
-  //   }
-  //   if (
-  //     position.row < 0 ||
-  //     position.row >= 8 ||
-  //     position.col < 0 ||
-  //     position.col >= 8
-  //   ) {
-  //     return ERROR_MESSAGES.OUT_OF_BOUNDS
-  //   }
-
-  //   // @ts-ignore
-  //   if (!boardState[position.row][position.col]) {
-  //     return ERROR_MESSAGES.NO_PIECE
-  //   }
-
-  //   // @ts-ignore
-  //   if (boardState[position.row][position.col] !== currentPlayer) {
-  //     return ERROR_MESSAGES.WRONG_PIECE
-  //   }
-  //   return null
-  // }
-
-  // const validateTargetInput = (input: string): ErrorMessage | null => {
-  //   const position = notationToPosition(input)
-  //   if (!position) return ERROR_MESSAGES.INVALID_FORMAT
-  //   if (
-  //     position.row < 0 ||
-  //     position.row >= 8 ||
-  //     position.col < 0 ||
-  //     position.col >= 8
-  //   )
-  //     return ERROR_MESSAGES.OUT_OF_BOUNDS
-  //   if (
-  //     !selectedPosition ||
-  //     !isValidMove(boardState, selectedPosition, position, currentPlayer)
-  //   )
-  //     return ERROR_MESSAGES.INVALID_MOVE
-  //   return null
-  // }
-
-  const generateComputerMove = (): { from: Position; to: Position } | null => {
+  const generateComputerMove = (
+    currentBoardState: BoardState
+  ): { from: Position; to: Position } | null => {
     const computerPieces: Position[] = []
 
     // Find all computer pieces
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
         // @ts-ignore
-        if (boardState[row][col] === PLAYER_COLORS.PLAYER_TWO) {
+        if (currentBoardState[row][col] === PLAYER_COLORS.PLAYER_TWO) {
           computerPieces.push({ row, col })
         }
       }
@@ -177,7 +135,7 @@ export default function App({ isMultiplayer }: { isMultiplayer?: boolean }) {
     // Find a valid move
     for (const piece of computerPieces) {
       const validMoves = getValidMoves(
-        boardState,
+        currentBoardState,
         piece,
         PLAYER_COLORS.PLAYER_TWO
       )
@@ -274,11 +232,13 @@ export default function App({ isMultiplayer }: { isMultiplayer?: boolean }) {
       currentPlayer === PLAYER_COLORS.PLAYER_ONE
     ) {
       setTimeout(() => {
-        const computerMove = generateComputerMove()
-        if (computerMove) {
-          makeMove(computerMove.from, computerMove.to, PLAYER_COLORS.PLAYER_TWO)
-        }
-      }, 1000) // Add a 1-second delay for the computer's move
+        const computerMove = generateComputerMove(boardState)
+        console.log('Computer move:', computerMove)
+        
+        // if (computerMove) {
+        //   makeMove(computerMove.from, computerMove.to, PLAYER_COLORS.PLAYER_TWO)
+        // }
+      }, 2000) // Add a 1-second delay for the computer's move
     }
   }
 
@@ -290,7 +250,9 @@ export default function App({ isMultiplayer }: { isMultiplayer?: boolean }) {
         setMenuSelection((prev) => (prev < 2 ? prev + 1 : prev))
       } else if (key.return) {
         if (menuSelection === 0) {
-          resetGame(isMultiplayer)
+          resetGame(false)
+        } else if (menuSelection === 1) {
+          resetGame(true)
         } else if (menuSelection === 2) {
           process.exit()
         }
@@ -379,6 +341,7 @@ export default function App({ isMultiplayer }: { isMultiplayer?: boolean }) {
           resetGame(false)
         }}
         onStartMultiPlayer={() => {
+          console.log('Starting multiplayer game')
           resetGame(true)
         }}
         onQuit={() => process.exit()}
