@@ -1,0 +1,50 @@
+import { Box, Text } from 'ink'
+import React from 'react'
+import { PlayerColor } from '../constants.js'
+
+export interface Move {
+  player: PlayerColor
+  from: string // Chess notation (e.g., "E3")
+  to: string // Chess notation (e.g., "D4")
+  captured?: boolean
+}
+
+interface MoveHistoryProps {
+  moves: Move[]
+  maxMoves?: number
+}
+
+export const MoveHistory: React.FC<MoveHistoryProps> = ({
+  moves,
+  maxMoves = 8,
+}) => {
+  // Get the most recent moves up to maxMoves
+  const recentMoves = moves.slice(-maxMoves)
+
+  return (
+    <Box flexDirection="column" marginLeft={2} borderStyle="single" padding={1}>
+      <Box marginBottom={1} justifyContent="center">
+        <Text bold underline>
+          Move History
+        </Text>
+      </Box>
+      {recentMoves.length > 0 ? (
+        recentMoves.map((move, index) => (
+          <Box key={index}>
+            <Text>
+              <Text color={move.player} bold>{`${
+                moves.length - recentMoves.length + index + 1
+              }.`}</Text>
+              <Text color={move.player}>{` ${move.from}->${move.to}`}</Text>
+              {move.captured && <Text color="yellow"> ✗</Text>}
+            </Text>
+          </Box>
+        ))
+      ) : (
+        <Box height={maxMoves} justifyContent="center">
+          <Text dimColor>No moves yet</Text>
+        </Box>
+      )}
+    </Box>
+  )
+}
