@@ -1,3 +1,4 @@
+import chalk from 'chalk'
 import { Box, Text, useInput } from 'ink'
 import React, { useState } from 'react'
 import { Board } from './components/Board.js'
@@ -35,9 +36,10 @@ type MessageState = {
 export default function App({ isMultiplayer }: { isMultiplayer?: boolean }) {
   // Screen state
   const [currentScreen, setCurrentScreen] = useState<AppScreen>('MAIN_MENU')
+  const [gameMode, setGameMode] = useState<'SINGLE_PLAYER' | 'MULTI_PLAYER'>(
+    isMultiplayer ? 'MULTI_PLAYER' : 'SINGLE_PLAYER'
+  )
   const [menuSelection, setMenuSelection] = useState(0)
-
-  console.log('isMultiplayer', isMultiplayer)
 
   // Game state
   const [boardState, setBoardState] = useState<BoardState>(initializeBoard())
@@ -75,7 +77,8 @@ export default function App({ isMultiplayer }: { isMultiplayer?: boolean }) {
     setMessages({ error: null, success })
   }
 
-  const resetGame = () => {
+  const resetGame = (multiplayer = false) => {
+    setGameMode(multiplayer ? 'MULTI_PLAYER' : 'SINGLE_PLAYER')
     setBoardState(initializeBoard())
     setCurrentPlayer(PLAYER_COLORS.PLAYER_ONE)
     setSelectedPosition(null)
@@ -210,18 +213,18 @@ export default function App({ isMultiplayer }: { isMultiplayer?: boolean }) {
   const handleMove = (targetPosition: Position) => {
     if (!selectedPosition) return
 
-    const makeMove = (from: Position, to: Position) => {
+    const makeMove = (from: Position, to: Position, player: PlayerColor) => {
       const newBoard = [...boardState.map((row) => [...row])]
 
       // @ts-ignore
-      newBoard[to.row][to.col] = newBoard[from.row][from.col]
+      newBoard[to.row][to.col] = player
       // @ts-ignore
       newBoard[from.row][from.col] = null
 
       // Record move
       const isCapture = isCaptureMove(from, to)
       const move: Move = {
-        player: currentPlayer,
+        player: player,
         from: positionToNotation(from),
         to: positionToNotation(to),
         captured: isCapture,
@@ -236,7 +239,7 @@ export default function App({ isMultiplayer }: { isMultiplayer?: boolean }) {
           // Update score
           setScores((prev) => ({
             ...prev,
-            [currentPlayer]: prev[currentPlayer] + 1,
+            [player]: prev[player] + 1,
           }))
         }
       }
@@ -256,21 +259,24 @@ export default function App({ isMultiplayer }: { isMultiplayer?: boolean }) {
         setCurrentScreen('GAME_OVER')
       } else {
         setCurrentPlayer(
-          currentPlayer === PLAYER_COLORS.PLAYER_ONE
+          player === PLAYER_COLORS.PLAYER_ONE
             ? PLAYER_COLORS.PLAYER_TWO
             : PLAYER_COLORS.PLAYER_ONE
         )
       }
     }
 
-    makeMove(selectedPosition, targetPosition)
+    makeMove(selectedPosition, targetPosition, currentPlayer)
 
-    // If it's single player mode and the computer's turn, generate a move
-    if (!isMultiplayer && currentPlayer === PLAYER_COLORS.PLAYER_ONE) {
+    // If it's single player mode and it's the computer's turn after the player's move, generate a move
+    if (
+      gameMode !== 'MULTI_PLAYER' &&
+      currentPlayer === PLAYER_COLORS.PLAYER_ONE
+    ) {
       setTimeout(() => {
         const computerMove = generateComputerMove()
         if (computerMove) {
-          makeMove(computerMove.from, computerMove.to)
+          makeMove(computerMove.from, computerMove.to, PLAYER_COLORS.PLAYER_TWO)
         }
       }, 1000) // Add a 1-second delay for the computer's move
     }
@@ -283,8 +289,11 @@ export default function App({ isMultiplayer }: { isMultiplayer?: boolean }) {
       } else if (key.downArrow) {
         setMenuSelection((prev) => (prev < 2 ? prev + 1 : prev))
       } else if (key.return) {
-        if (menuSelection === 0) resetGame()
-        else if (menuSelection === 2) process.exit()
+        if (menuSelection === 0) {
+          resetGame(isMultiplayer)
+        } else if (menuSelection === 2) {
+          process.exit()
+        }
       }
     } else if (currentScreen === 'GAME') {
       if (key.return) {
@@ -344,7 +353,7 @@ export default function App({ isMultiplayer }: { isMultiplayer?: boolean }) {
         }
       }
     } else if (currentScreen === 'GAME_OVER') {
-      if (input.toLowerCase() === 'r') resetGame()
+      if (input.toLowerCase() === 'r') resetGame(gameMode === 'MULTI_PLAYER')
       else if (input.toLowerCase() === 'q') setCurrentScreen('MAIN_MENU')
     }
   })
@@ -359,12 +368,18 @@ export default function App({ isMultiplayer }: { isMultiplayer?: boolean }) {
   }
 
   if (currentScreen === 'MAIN_MENU') {
+    // Jump straight to the game if the game was started from the command line.
+    if (isMultiplayer) {
+      resetGame(isMultiplayer)
+    }
+
     return (
       <MainMenu
-        onStartSinglePlayer={resetGame}
+        onStartSinglePlayer={() => {
+          resetGame(false)
+        }}
         onStartMultiPlayer={() => {
-          console.log('Starting multiplayer game')
-          resetGame()
+          resetGame(true)
         }}
         onQuit={() => process.exit()}
         selectedOption={menuSelection}
@@ -376,24 +391,29 @@ export default function App({ isMultiplayer }: { isMultiplayer?: boolean }) {
     return (
       <GameOver
         winner={winner}
-        onRestart={resetGame}
+        onRestart={() => resetGame(gameMode === 'MULTI_PLAYER')}
         onQuit={() => setCurrentScreen('MAIN_MENU')}
       />
     )
   }
 
   if (currentScreen === 'GAME') {
+    const redScore = chalk.red(`Red: ${scores[PLAYER_COLORS.PLAYER_ONE]}`)
+    const blueScore = chalk.blue(`Blue: ${scores[PLAYER_COLORS.PLAYER_TWO]}`)
+    const coloredPlayer =
+      currentPlayer === PLAYER_COLORS.PLAYER_ONE
+        ? chalk.red('Red')
+        : chalk.blue('Blue')
     return (
       <Box flexDirection="column">
         <Box marginBottom={1}>
           <Text>
-            Scores - Red: {scores[PLAYER_COLORS.PLAYER_ONE]} Blue:{' '}
-            {scores[PLAYER_COLORS.PLAYER_TWO]}
+            Scores - {redScore} | {blueScore}
           </Text>
         </Box>
         <Box>
           <Box flexDirection="column">
-            <Text>Current Player: {currentPlayer}</Text>
+            <Text>Current Player: {coloredPlayer}</Text>
             <Board
               board={boardState}
               currentPlayer={currentPlayer}
