@@ -8,12 +8,10 @@ import { GameOver } from './screens/GameOver.js'
 import { MainMenu } from './screens/MainMenu.js'
 
 export default function App({ isMultiplayer }: { isMultiplayer?: boolean }) {
-  console.log('App rendered', { isMultiplayer })
-
   return (
     <ScreenProvider>
       <GameProvider>
-        <Game />
+        <Game isMultiplayer={isMultiplayer} />
       </GameProvider>
     </ScreenProvider>
   )
@@ -21,7 +19,6 @@ export default function App({ isMultiplayer }: { isMultiplayer?: boolean }) {
 
 const Game = ({ isMultiplayer }: { isMultiplayer?: boolean }) => {
   const { currentScreen } = useScreen()
-
   return (
     <>
       {currentScreen === 'MAIN_MENU' && (
