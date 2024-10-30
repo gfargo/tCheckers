@@ -1,23 +1,14 @@
 import { Box, Text } from 'ink'
 import React from 'react'
-import { PlayerColor } from '../constants.js'
-
-export interface Move {
-  player: PlayerColor
-  from: string // Chess notation (e.g., "E3")
-  to: string // Chess notation (e.g., "D4")
-  captured?: boolean
-}
+import { useGame } from '../GameContext.js'
 
 interface MoveHistoryProps {
-  moves: Move[]
   maxMoves?: number
 }
 
-export const MoveHistory: React.FC<MoveHistoryProps> = ({
-  moves,
-  maxMoves = 8,
-}) => {
+export const MoveHistory: React.FC<MoveHistoryProps> = ({ maxMoves = 8 }) => {
+  const { moves } = useGame()
+
   // Get the most recent moves up to maxMoves
   const recentMoves = moves.slice(-maxMoves)
 

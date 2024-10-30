@@ -2,10 +2,10 @@ import { Box, Text } from 'ink'
 import React from 'react'
 import {
     BOARD_COLORS,
+    BoardPosition,
     COLUMN_LABELS,
     PLAYER_COLORS,
     PlayerColor,
-    Position,
     ROW_LABELS,
 } from '../constants.js'
 import { BoardState, getCellColor } from '../helpers/board.js'
@@ -13,8 +13,8 @@ import { BoardState, getCellColor } from '../helpers/board.js'
 interface BoardProps {
   board: BoardState
   currentPlayer: PlayerColor
-  selectedPosition: Position | null
-  validMoves: Position[]
+  selectedPosition: BoardPosition | null
+  validMoves: BoardPosition[]
   inputValue: string
   isSelectingTarget: boolean
 }

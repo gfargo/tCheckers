@@ -1,14 +1,14 @@
 import {
   BOARD_SIZE,
+  BoardPosition,
   MOVE_DIRECTIONS,
   PLAYER_COLORS,
   PlayerColor,
-  Position,
 } from '../constants.js'
 import { BoardState } from './board.js'
 
 // Helper to check if a position is within board bounds
-function isWithinBounds(position: Position): boolean {
+function isWithinBounds(position: BoardPosition): boolean {
   return (
     position.row >= 0 &&
     position.row < BOARD_SIZE &&
@@ -19,9 +19,9 @@ function isWithinBounds(position: Position): boolean {
 
 // Get the position of a captured piece between two positions
 export function getCapturedPiecePosition(
-  from: Position,
-  to: Position
-): Position | null {
+  from: BoardPosition,
+  to: BoardPosition
+): BoardPosition | null {
   const rowDiff = to.row - from.row
   const colDiff = to.col - from.col
 
@@ -38,10 +38,10 @@ export function getCapturedPiecePosition(
 
 export function getValidMoves(
   board: BoardState,
-  position: Position,
+  position: BoardPosition,
   playerColor: PlayerColor
-): Position[] {
-  const validMoves: Position[] = []
+): BoardPosition[] {
+  const validMoves: BoardPosition[] = []
   const directions =
     playerColor === PLAYER_COLORS.PLAYER_ONE
       ? MOVE_DIRECTIONS.PLAYER_ONE
@@ -50,7 +50,7 @@ export function getValidMoves(
   // Check each possible direction
   for (const [deltaRow, deltaCol] of directions) {
     // Regular move
-    const regularMove: Position = {
+    const regularMove: BoardPosition = {
       row: position.row + deltaRow,
       col: position.col + deltaCol,
     }
@@ -64,7 +64,7 @@ export function getValidMoves(
     }
 
     // Capture move
-    const captureMove: Position = {
+    const captureMove: BoardPosition = {
       row: position.row + deltaRow * 2,
       col: position.col + deltaCol * 2,
     }
@@ -90,8 +90,8 @@ export function getValidMoves(
 
 export function isValidMove(
   board: BoardState,
-  from: Position,
-  to: Position,
+  from: BoardPosition,
+  to: BoardPosition,
   playerColor: PlayerColor
 ): boolean {
   const validMoves = getValidMoves(board, from, playerColor)
@@ -99,6 +99,50 @@ export function isValidMove(
 }
 
 // Check if a move is a capture move
-export function isCaptureMove(from: Position, to: Position): boolean {
+export function isCaptureMove(from: BoardPosition, to: BoardPosition): boolean {
   return Math.abs(to.row - from.row) === 2 && Math.abs(to.col - from.col) === 2
+}
+
+export const generateComputerMove = (
+  currentBoardState: BoardState
+): { from: BoardPosition; to: BoardPosition } | null => {
+  const computerPieces: BoardPosition[] = []
+
+  // Find all computer pieces
+  for (let row = 0; row < 8; row++) {
+    for (let col = 0; col < 8; col++) {
+      // @ts-ignore
+      if (currentBoardState[row][col] === PLAYER_COLORS.PLAYER_TWO) {
+        computerPieces.push({ row, col })
+      }
+    }
+  }
+
+  // Shuffle the pieces to add randomness
+  for (let i = computerPieces.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    // @ts-ignore
+    ;[computerPieces[i], computerPieces[j]] = [
+      computerPieces[j],
+      computerPieces[i],
+    ]
+  }
+
+  // Find a valid move
+  for (const piece of computerPieces) {
+    const validMoves = getValidMoves(
+      currentBoardState,
+      piece,
+      PLAYER_COLORS.PLAYER_TWO
+    )
+    if (validMoves.length > 0) {
+      const randomMove =
+        validMoves[Math.floor(Math.random() * validMoves.length)]
+      if (randomMove) {
+        return { from: piece, to: randomMove }
+      }
+    }
+  }
+
+  return null // No valid moves found
 }

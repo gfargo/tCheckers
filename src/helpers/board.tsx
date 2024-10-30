@@ -1,8 +1,12 @@
-import { BOARD_SIZE, PLAYER_COLORS, type PlayerColor } from '../constants.js'
+import {
+  BOARD_SIZE,
+  BoardPosition,
+  PLAYER_COLORS,
+  type PlayerColor,
+} from '../constants.js'
 
 // Piece types
 export type PieceType = PlayerColor | undefined | null
-export type Position = [number, number]
 
 // Board representation
 export type BoardState = PieceType[][]
@@ -36,8 +40,8 @@ export function initializeBoard(): BoardState {
 }
 
 // Helper to check if a position is valid on the board
-export function isValidPosition(position: Position): boolean {
-  const [row, col] = position
+export function isValidPosition(position: BoardPosition): boolean {
+  const { row, col } = position
   return row >= 0 && row < BOARD_SIZE && col >= 0 && col < BOARD_SIZE
 }
 

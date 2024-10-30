@@ -71,7 +71,7 @@ export type SuccessMessage =
   (typeof SUCCESS_MESSAGES)[keyof typeof SUCCESS_MESSAGES]
 
 // Position type for selected squares and moves
-export type Position = {
+export type BoardPosition = {
   row: number
   col: number
 }
@@ -85,7 +85,7 @@ export type InputState = {
 }
 
 // Helper functions
-export function notationToPosition(notation: string): Position | null {
+export function notationToPosition(notation: string): BoardPosition | null {
   if (notation.length !== 2) return null
 
   const col = notation[0]
@@ -98,7 +98,7 @@ export function notationToPosition(notation: string): Position | null {
   return { row, col }
 }
 
-export function positionToNotation(position: Position): string {
+export function positionToNotation(position: BoardPosition): string {
   // @ts-ignore
   return COLUMN_LABELS[position.col] + ROW_LABELS[position.row]
 }

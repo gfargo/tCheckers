@@ -1,31 +1,26 @@
 import { Box, Text, useInput } from 'ink'
 import React from 'react'
-import { PlayerColor } from '../constants.js'
+import { useGame } from '../GameContext.js'
+import { useScreen } from '../ScreenContext.js'
 
-interface GameOverProps {
-  winner: PlayerColor
-  onRestart: () => void
-  onQuit: () => void
-}
+interface GameOverProps {}
 
-export const GameOver: React.FC<GameOverProps> = ({
-  winner,
-  onRestart,
-  onQuit,
-}) => {
-  
+export const GameOver: React.FC<GameOverProps> = ({}) => {
+  const { setCurrentScreen } = useScreen()
+  const { resetGame, gameMode, winner } = useGame()
+
   useInput((input) => {
     if (input.toLowerCase() === 'r') {
-      onRestart()
+      resetGame(gameMode === 'MULTI_PLAYER')
     } else if (input.toLowerCase() === 'q') {
-      onQuit()
+      setCurrentScreen('MAIN_MENU')
     }
   })
 
   return (
     <Box flexDirection="column" alignItems="center" padding={1}>
       <Box marginBottom={1}>
-        <Text bold color={winner}>
+        <Text bold color={winner as string}>
           {winner} Wins!
         </Text>
       </Box>
@@ -39,4 +34,3 @@ export const GameOver: React.FC<GameOverProps> = ({
     </Box>
   )
 }
-
