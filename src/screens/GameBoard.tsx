@@ -1,14 +1,14 @@
-import { Box, Text, useInput } from 'ink'
+import { Box, useInput } from 'ink'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Move, useGame } from '../GameContext.js'
 import { useScreen } from '../ScreenContext.js'
 import { Board } from '../components/Board.js'
 import { CurrentPlayer } from '../components/CurrentPlayer.js'
+import { GameMessages } from '../components/GameMessages.js'
 import { MoveHistory } from '../components/MoveHistory.js'
 import { PlayerPrompt } from '../components/PlayerPrompt.js'
 import { PlayerScores } from '../components/PlayerScores.js'
 import {
-  BOARD_COLORS,
   BoardPosition,
   ERROR_MESSAGES,
   GAME_STATES,
@@ -32,7 +32,6 @@ export const GameBoard = () => {
     boardState,
     setBoardState,
     currentPlayer,
-    messages,
     gameState,
     setGameState,
     showError,
@@ -80,11 +79,16 @@ export const GameBoard = () => {
     )
   }
 
-  const handleMove = (targetPosition: BoardPosition) => {
-    if (!selectedPosition) return
+  const handleMove = useCallback(
+    (targetPosition: BoardPosition) => {
+      if (!selectedPosition) {
+        return
+      }
 
-    makeMove(selectedPosition, targetPosition, currentPlayer)
-  }
+      makeMove(selectedPosition, targetPosition, currentPlayer)
+    },
+    [selectedPosition, currentPlayer]
+  )
 
   const makeMove = (
     from: BoardPosition,
@@ -233,13 +237,7 @@ export const GameBoard = () => {
           />
           <Box marginTop={1} flexDirection="column">
             <PlayerPrompt inputValue={inputValue} />
-
-            {messages.error && (
-              <Text color={BOARD_COLORS.ERROR}>⚠ {messages.error}</Text>
-            )}
-            {messages.success && (
-              <Text color={BOARD_COLORS.SUCCESS}>✓ {messages.success}</Text>
-            )}
+            <GameMessages />
           </Box>
         </Box>
         <MoveHistory />
