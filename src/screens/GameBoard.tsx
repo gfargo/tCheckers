@@ -1,5 +1,5 @@
 import { Box, Text, useInput } from 'ink'
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Move, useGame } from '../GameContext.js'
 import { useScreen } from '../ScreenContext.js'
 import { Board } from '../components/Board.js'
@@ -7,8 +7,24 @@ import { CurrentPlayer } from '../components/CurrentPlayer.js'
 import { MoveHistory } from '../components/MoveHistory.js'
 import { PlayerPrompt } from '../components/PlayerPrompt.js'
 import { PlayerScores } from '../components/PlayerScores.js'
-import { BOARD_COLORS, BoardPosition, ERROR_MESSAGES, GAME_STATES, notationToPosition, PLAYER_COLORS, PlayerColor, positionToNotation, SUCCESS_MESSAGES } from '../constants.js'
-import { generateComputerMove, getCapturedPiecePosition, getValidMoves, isCaptureMove, isValidMove } from '../helpers/moves.js'
+import {
+  BOARD_COLORS,
+  BoardPosition,
+  ERROR_MESSAGES,
+  GAME_STATES,
+  notationToPosition,
+  PLAYER_COLORS,
+  PlayerColor,
+  positionToNotation,
+  SUCCESS_MESSAGES,
+} from '../constants.js'
+import {
+  generateComputerMove,
+  getCapturedPiecePosition,
+  getValidMoves,
+  isCaptureMove,
+  isValidMove,
+} from '../helpers/moves.js'
 
 export const GameBoard = () => {
   const {
@@ -38,6 +54,15 @@ export const GameBoard = () => {
 
   const [inputValue, setInputValue] = useState('')
 
+  useEffect(() => {
+    if (
+      gameMode !== 'MULTI_PLAYER' &&
+      currentPlayer === PLAYER_COLORS.PLAYER_TWO
+    ) {
+      handleAIMove()
+    }
+  }, [currentPlayer, gameMode])
+
   const handleValidMove = (position: BoardPosition) => {
     const moves = getValidMoves(boardState, position, currentPlayer)
     setSelectedPosition(position)
@@ -58,81 +83,78 @@ export const GameBoard = () => {
   const handleMove = (targetPosition: BoardPosition) => {
     if (!selectedPosition) return
 
-    const makeMove = (
-      from: BoardPosition,
-      to: BoardPosition,
-      player: PlayerColor
-    ) => {
-      const newBoard = [...boardState.map((row) => [...row])]
+    makeMove(selectedPosition, targetPosition, currentPlayer)
+  }
 
-      // @ts-ignore
-      newBoard[to.row][to.col] = player
-      // @ts-ignore
-      newBoard[from.row][from.col] = null
+  const makeMove = (
+    from: BoardPosition,
+    to: BoardPosition,
+    player: PlayerColor
+  ) => {
+    const newBoard = [...boardState.map((row) => [...row])]
 
-      // Record move
-      const isCapture = isCaptureMove(from, to)
-      const move: Move = {
-        player: player,
-        from: positionToNotation(from),
-        to: positionToNotation(to),
-        captured: isCapture,
-      }
+    // @ts-ignore
+    newBoard[to.row][to.col] = player
+    // @ts-ignore
+    newBoard[from.row][from.col] = null
 
-      // Handle captures
-      if (isCapture) {
-        const capturedPos = getCapturedPiecePosition(from, to)
-        if (capturedPos) {
-          // @ts-ignore
-          newBoard[capturedPos.row][capturedPos.col] = null
-          const currentScore = scores[player] || 0
-          // Update score
-          setScores({
-            ...scores,
-            [player]: currentScore + 1,
-          })
-        }
-      }
+    // Record move
+    const isCapture = isCaptureMove(from, to)
+    const move: Move = {
+      player: player,
+      from: positionToNotation(from),
+      to: positionToNotation(to),
+      captured: isCapture,
+    }
 
-      setBoardState(newBoard)
-      setMoves([...moves, move])
-      setSelectedPosition(null)
-      setValidMoves([])
-      setGameState(GAME_STATES.WAITING_FOR_SOURCE)
-      setInputValue('')
-      clearMessages()
-
-      // Check for win condition
-      const winner = checkWinCondition(newBoard)
-      if (winner) {
-        setWinner(winner)
-        setCurrentScreen('GAME_OVER')
-      } else {
-        setCurrentPlayer(
-          player === PLAYER_COLORS.PLAYER_ONE
-            ? PLAYER_COLORS.PLAYER_TWO
-            : PLAYER_COLORS.PLAYER_ONE
-        )
+    // Handle captures
+    if (isCapture) {
+      const capturedPos = getCapturedPiecePosition(from, to)
+      if (capturedPos) {
+        // @ts-ignore
+        newBoard[capturedPos.row][capturedPos.col] = null
+        const currentScore = scores[player] || 0
+        // Update score
+        setScores({
+          ...scores,
+          [player]: currentScore + 1,
+        })
       }
     }
 
-    makeMove(selectedPosition, targetPosition, currentPlayer)
+    setBoardState(newBoard)
+    setMoves([...moves, move])
+    setSelectedPosition(null)
+    setValidMoves([])
+    setGameState(GAME_STATES.WAITING_FOR_SOURCE)
+    setInputValue('')
+    clearMessages()
 
-    // If it's single player mode and it's the computer's turn after the player's move, generate a move
-    if (
-      gameMode !== 'MULTI_PLAYER' &&
-      currentPlayer === PLAYER_COLORS.PLAYER_ONE
-    ) {
-      setTimeout(() => {
-        const computerMove = generateComputerMove(boardState)
-        console.log('Computer move:', computerMove)
-
-        // if (computerMove) {
-        //   makeMove(computerMove.from, computerMove.to, PLAYER_COLORS.PLAYER_TWO)
-        // }
-      }, 2000) // Add a 1-second delay for the computer's move
+    // Check for win condition
+    const winner = checkWinCondition(newBoard)
+    if (winner) {
+      setWinner(winner)
+      showSuccess(SUCCESS_MESSAGES.GAME_OVER)
+      setCurrentScreen('GAME_OVER')
+    } else {
+      // Alternate player turn
+      const nextPlayer =
+        player === PLAYER_COLORS.PLAYER_ONE
+          ? PLAYER_COLORS.PLAYER_TWO
+          : PLAYER_COLORS.PLAYER_ONE
+      setCurrentPlayer(nextPlayer)
     }
   }
+
+  const handleAIMove = useCallback(() => {
+    showSuccess(SUCCESS_MESSAGES.COMPUTER_THINKING)
+    setTimeout(() => {
+      const computerMove = generateComputerMove(boardState)
+      if (computerMove) {
+        makeMove(computerMove.from, computerMove.to, PLAYER_COLORS.PLAYER_TWO)
+      }
+    }, 1000) // Add a 2-second delay for the computer's move
+  }, [boardState])
 
   useInput((input, key) => {
     if (key.return) {

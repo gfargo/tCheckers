@@ -18,8 +18,6 @@ export const MainMenu: React.FC<MainMenuProps> = ({ defaultSelection }) => {
     } else if (key.downArrow) {
       setMenuSelection((prev) => (prev < 2 ? prev + 1 : prev))
     } else if (key.return) {
-      console.log('menuSelection', menuSelection)
-
       if (menuSelection === 0) {
         resetGame(false)
       } else if (menuSelection === 1) {

@@ -41,6 +41,8 @@ export const SUCCESS_MESSAGES = {
   PIECE_SELECTED: 'Piece selected! Choose a highlighted square to move to',
   VALID_MOVE: 'Valid move! Press Enter to confirm',
   CAPTURE_AVAILABLE: 'Capture move available!',
+  COMPUTER_THINKING: 'Computer is thinking...',
+  GAME_OVER: 'Game over!',
 } as const
 
 // Board notation
