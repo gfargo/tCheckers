@@ -1,6 +1,8 @@
 import { Box, Text, useInput } from 'ink'
+import Gradient from 'ink-gradient'
 import React from 'react'
 import { useGame } from '../GameContext.js'
+import { TITLE_ART } from '../constants.js'
 
 interface MainMenuProps {
   defaultSelection?: number
@@ -35,9 +37,11 @@ export const MainMenu: React.FC<MainMenuProps> = ({ defaultSelection }) => {
   ]
 
   return (
-    <Box flexDirection="column" alignItems="center" padding={1}>
-      <Box marginBottom={1}>
-        <Text bold>tCheckers</Text>
+    <Box flexDirection="column" alignItems="center" width={'100%'}>
+      <Box marginBottom={-1}>
+        <Gradient name="summer">
+          <Text bold>{TITLE_ART}</Text>
+        </Gradient>
       </Box>
       {menuItems.map((item, index) => (
         <Box key={item.label}>

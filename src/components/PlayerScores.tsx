@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import { Text } from 'ink'
+import { Box, Text } from 'ink'
 import React from 'react'
 import { PLAYER_COLORS } from '../constants.js'
 import { useGame } from '../GameContext.js'
@@ -11,8 +11,10 @@ export const PlayerScores = () => {
   const blueScore = chalk.blue(`Blue: ${scores[PLAYER_COLORS.PLAYER_TWO]}`)
 
   return (
-    <Text>
-      Scores - {redScore} | {blueScore}
-    </Text>
+    <Box>
+      <Text>
+        {redScore} | {blueScore}
+      </Text>
+    </Box>
   )
 }

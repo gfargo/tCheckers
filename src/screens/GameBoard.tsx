@@ -16,6 +16,7 @@ import {
   PLAYER_COLORS,
   PlayerColor,
   positionToNotation,
+  SCREEN_WIDTH,
   SUCCESS_MESSAGES,
 } from '../constants.js'
 import {
@@ -220,13 +221,13 @@ export const GameBoard = () => {
   })
 
   return (
-    <Box flexDirection="column">
-      <Box marginBottom={1}>
+    <Box flexDirection="column" width={SCREEN_WIDTH}>
+      <Box width={'100%'} justifyContent="space-between">
         <PlayerScores />
+        <CurrentPlayer />
       </Box>
-      <Box>
-        <Box flexDirection="column">
-          <CurrentPlayer />
+      <Box width={'100%'} justifyContent="space-between">
+        <Box flexDirection="column" width={'70%'}>
           <Board
             board={boardState}
             currentPlayer={currentPlayer}
@@ -240,7 +241,9 @@ export const GameBoard = () => {
             <GameMessages />
           </Box>
         </Box>
-        <MoveHistory />
+        <Box width={'30%'}>
+          <MoveHistory />
+        </Box>
       </Box>
     </Box>
   )

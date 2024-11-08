@@ -1,3 +1,25 @@
+// Game Dimensions
+export const SCREEN_WIDTH = 80
+
+// NOTE: using 'Cricket' font for the title
+export const TITLE_ART = `
+  __   _______ __               __                     
+ |  |_|   _   |  |--.-----.----|  |--.-----.----.-----.
+ |   _|.  1___|     |  -__|  __|    <|  -__|   _|__ --|
+ |____|.  |___|__|__|_____|____|__|__|_____|__| |_____|
+      |:  1   |                                        
+      |::.. . |                                        
+      \`-------'                                       `
+
+// NOTE: using 'Big' font for the title
+// export const TITLE_ART = `
+//   _    _____ _               _                 
+//  | |  / ____| |             | |                
+//  | |_| |    | |__   ___  ___| | _____ _ __ ___ 
+//  | __| |    | '_ \\ / _ \\/ __| |/ / _ \\ '__/ __|
+//  | |_| |____| | | |  __/ (__|   <  __/ |  \\__ \\
+//   \\__|\\_____|_| |_|\\___|\\___|_|\\_\\___|_|  |___/`
+
 // Player colors
 export const PLAYER_COLORS = {
   PLAYER_ONE: 'red',

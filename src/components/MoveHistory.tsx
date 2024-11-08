@@ -13,7 +13,13 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({ maxMoves = 8 }) => {
   const recentMoves = moves.slice(-maxMoves)
 
   return (
-    <Box flexDirection="column" marginLeft={2} borderStyle="single" padding={1}>
+    <Box
+      flexDirection="column"
+      marginLeft={2}
+      borderStyle="single"
+      paddingX={1}
+      flexGrow={1}
+    >
       <Box marginBottom={1} justifyContent="center">
         <Text bold underline>
           Move History
