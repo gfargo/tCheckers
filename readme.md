@@ -1,5 +1,9 @@
 # tCheckers 🎮
 
+[![npm version](https://img.shields.io/npm/v/tcheckers.svg)](https://www.npmjs.com/package/tcheckers)
+[![npm downloads](https://img.shields.io/npm/dm/tcheckers.svg)](https://www.npmjs.com/package/tcheckers)
+[![GitHub stars](https://img.shields.io/github/stars/gfargo/tcheckers.svg?style=social&label=Star)](https://github.com/gfargo/tcheckers)
+
 Welcome to **tCheckers**! A terminal-based Checkers game built with React and Ink, designed to bring the classic board game experience right to your command line. 🏁
 
 ## Overview 🌟
